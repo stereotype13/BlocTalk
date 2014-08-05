@@ -12,8 +12,8 @@ import java.util.List;
  */
 public class Conversation extends Model {
 
-    public List<Message> messages;
-    public List<Participant> participants;
+    public ArrayList<Message> messages;
+    public ArrayList<Participant> participants;
 
     public Conversation() {
         super();

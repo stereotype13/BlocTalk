@@ -15,14 +15,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity implements NewConversationFragment.INewConversationFragmentListener {
+public class MainActivity extends ActionBarActivity implements NewConversationFragment.INewConversationFragmentListener,
+    ConversationFragment.IConversationFragmentListener
+{
 
     private static final String NEW_CONVERSATION_FRAGMENT = "NEW_CONVERSATION_FRAGMENT";
+    private NewConversationFragment mNewConversationFragment;
+
+    private static final String CONVERSATION_FRAGMENT = "CONVERSATION_FRAGMENT";
+    private ConversationFragment mConversationFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if(savedInstanceState != null) {
+            mNewConversationFragment = (NewConversationFragment)getFragmentManager().findFragmentByTag(NEW_CONVERSATION_FRAGMENT);
+            mConversationFragment = (ConversationFragment) getFragmentManager().findFragmentByTag(CONVERSATION_FRAGMENT);
+        }
+        else {
+            mNewConversationFragment = new NewConversationFragment();
+            mConversationFragment = new ConversationFragment();
+        }
     }
 
 
@@ -95,9 +110,9 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
 
         }
 
-        NewConversationFragment newConversationFragment = new NewConversationFragment(conversation, potentialParticipants);
+        mNewConversationFragment = new NewConversationFragment(conversation, potentialParticipants);
 
-        getFragmentManager().beginTransaction().replace(android.R.id.content, newConversationFragment).addToBackStack(NEW_CONVERSATION_FRAGMENT).commit();
+        getFragmentManager().beginTransaction().replace(android.R.id.content, mNewConversationFragment, NEW_CONVERSATION_FRAGMENT).addToBackStack(NEW_CONVERSATION_FRAGMENT).commit();
 
 
     }
@@ -127,7 +142,26 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
 
         conversation.save();
 
-        //Show the conversation next
+        mConversationFragment = new ConversationFragment(conversation);
+
+        getFragmentManager().beginTransaction().replace(android.R.id.content, mConversationFragment, CONVERSATION_FRAGMENT).addToBackStack(CONVERSATION_FRAGMENT).commit();
+
+    }
+
+    @Override
+    public void onSendMessage(Conversation conversation, Message message) {
+        message.setConversationID(conversation.getConversationID());
+        message.save();
+        conversation.messages.add(message);
+
+        //Refresh the list view of the conversation fragment once we've sent the message
+        mConversationFragment.refresh(message);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
 
     }
 }

@@ -7,7 +7,7 @@ import android.content.ContentValues;
  */
 public class Message extends Model {
 
-    private long mUserID;
+    private long mUserID = -1; //-1 = self
     private String mMessage = null;
     private long mConversationID;
 
