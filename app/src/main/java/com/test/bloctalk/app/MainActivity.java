@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -154,6 +154,11 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
         message.save();
         conversation.messages.add(message);
 
+        //Send the message to each participant
+
+        for(Participant participant : conversation.participants) {
+            message.send(participant);
+        }
         //Refresh the list view of the conversation fragment once we've sent the message
         mConversationFragment.refresh(message);
     }

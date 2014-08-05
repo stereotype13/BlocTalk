@@ -1,6 +1,7 @@
 package com.test.bloctalk.app;
 
 import android.content.ContentValues;
+import android.telephony.SmsManager;
 
 /**
  * Created by stereotype13 on 8/3/14.
@@ -10,6 +11,7 @@ public class Message extends Model {
     private long mUserID = -1; //-1 = self
     private String mMessage = null;
     private long mConversationID;
+    private SmsManager mSmsManager;
 
     public Conversation conversation;
     public User user;
@@ -18,6 +20,7 @@ public class Message extends Model {
     public Message(){
         super();
         setContract();
+        mSmsManager = SmsManager.getDefault();
     }
 
     @Override
@@ -45,6 +48,12 @@ public class Message extends Model {
     public void setConversation(Conversation conversation) {
         this.conversation = conversation;
         mConversationID = conversation.getConversationID();
+    }
+
+    public void send(Participant participant) {
+        User user = participant.user;
+
+        mSmsManager.sendTextMessage(user.getMobileNumber(), null, mMessage, null, null);
     }
 
     public long getMessageID() {
