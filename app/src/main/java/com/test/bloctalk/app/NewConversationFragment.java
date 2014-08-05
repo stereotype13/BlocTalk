@@ -6,8 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +20,18 @@ import java.util.List;
 public class NewConversationFragment extends Fragment {
 
     private static final String POTENTIAL_PARTICIPANTS = "POTENTIAL_PARTICIPANTS";
+    private static final String SELECTED_PARTICIPANTS = "SELECTED_PARTICIPANTS";
+    private static final String USER_WRAPPERS = "USER_WRAPPERS";
     private static final String CONVERSATION = "CONVERSATION";
 
     private ArrayList<User> mPotentialParticipants;
+    private ArrayList<User> mSelectedParticipants;
     private Conversation mConversation;
+    private ArrayList<UsersAdapter.UserWrapper> mUserWrappers;
+
+    private UsersAdapter mUsersAdapter;
+
+    private INewConversationFragmentListener mListener;
 
     public NewConversationFragment(Conversation conversation, ArrayList<User> potentialParticipants) {
         mConversation = conversation;
@@ -36,9 +46,19 @@ public class NewConversationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mListener = (INewConversationFragmentListener) getActivity();
+
+
         if(savedInstanceState != null) {
             mConversation = savedInstanceState.getParcelable(CONVERSATION);
             mPotentialParticipants = savedInstanceState.getParcelableArrayList(POTENTIAL_PARTICIPANTS);
+            mSelectedParticipants = savedInstanceState.getParcelableArrayList(SELECTED_PARTICIPANTS);
+            mUserWrappers = savedInstanceState.getParcelableArrayList(USER_WRAPPERS);
+        }
+        else {
+            mSelectedParticipants = new ArrayList<User>();
+            mUsersAdapter = new UsersAdapter(getActivity(), mPotentialParticipants);
+            mUserWrappers = mUsersAdapter.getUserWrappers();
         }
 
 
@@ -48,23 +68,51 @@ public class NewConversationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.new_conversation_fragment, container, false);
-        ListView listView = (ListView) rootView.findViewById(R.id.lvNewConversationFragment);
+        final ListView listView = (ListView) rootView.findViewById(R.id.lvNewConversationFragment);
 
-        listView.setAdapter(new UsersAdapter(getActivity(), mPotentialParticipants));
+        listView.setAdapter(mUsersAdapter);
+
+        Button btnCreateConversation = (Button) rootView.findViewById(R.id.btnCreateConversation);
+        btnCreateConversation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ArrayList<UsersAdapter.UserWrapper> userWrappers = mUsersAdapter.getUserWrappers();
+
+                for(UsersAdapter.UserWrapper userWrapper : userWrappers) {
+                    if(userWrapper.isSelected()) {
+
+                        mSelectedParticipants.add(userWrapper.getUser());
+                    }
+                }
+
+                mListener.onSaveConversation(mConversation, mSelectedParticipants);
+
+            }
+        });
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                //CheckBox checkBox = (CheckBox)view.findViewById(R.id.cbIsSelected);
 
-                CheckBox checkBox = (CheckBox) adapterView.findViewById(R.id.cbIsSelected);
+                ArrayList<UsersAdapter.UserWrapper> userWrappers = mUsersAdapter.getUserWrappers();
 
-                if(checkBox.isSelected()) {
-                    checkBox.setSelected(false);
+                UsersAdapter.UserWrapper userWrapper = mUsersAdapter.getUserWrapper(i);
+
+                CheckBox checkBox = (CheckBox) view.findViewById(R.id.cbIsSelected);
+
+                if(checkBox.isChecked()) {
+                    checkBox.setChecked(false);
+                    userWrapper.setSelected(false);
+                    userWrappers.set(i, userWrapper);
                 }
                 else {
-                    checkBox.setSelected(true);
+                    checkBox.setChecked(true);
+                    userWrapper.setSelected(true);
+                    userWrappers.set(i, userWrapper);
                 }
+
+                mUsersAdapter.setUserWrappers(userWrappers);
+
             }
         });
 
@@ -74,7 +122,13 @@ public class NewConversationFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList(POTENTIAL_PARTICIPANTS, mPotentialParticipants);
+        outState.putParcelableArrayList(SELECTED_PARTICIPANTS, mSelectedParticipants);
         outState.putParcelable(CONVERSATION, mConversation);
+        outState.putParcelableArrayList(USER_WRAPPERS, mUserWrappers);
+    }
+
+    public interface INewConversationFragmentListener {
+        public void onSaveConversation(Conversation conversation, ArrayList<User> selectedParticipants);
     }
 
 

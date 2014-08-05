@@ -9,12 +9,13 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements NewConversationFragment.INewConversationFragmentListener {
 
     private static final String NEW_CONVERSATION_FRAGMENT = "NEW_CONVERSATION_FRAGMENT";
 
@@ -49,6 +50,7 @@ public class MainActivity extends ActionBarActivity {
     public void onStartANewConversation(View view) {
 
         Conversation conversation = new Conversation();
+
         conversation.create();
 
         Uri CONTACT_CONTENT_URI = ContactsContract.Contacts.CONTENT_URI;
@@ -108,5 +110,24 @@ public class MainActivity extends ActionBarActivity {
         else {
             getFragmentManager().popBackStack();
         }
+    }
+
+    @Override
+    public void onSaveConversation(Conversation conversation, ArrayList<User> selectedParticipants) {
+        long conversationID = conversation.getConversationID();
+
+        for(User user : selectedParticipants) {
+            Participant participant = new Participant();
+            participant.create();
+            participant.setConversationID(conversationID);
+            participant.setUser(user);
+            conversation.participants.add(participant);
+            participant.save();
+        }
+
+        conversation.save();
+
+        //Show the conversation next
+
     }
 }

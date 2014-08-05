@@ -1,6 +1,9 @@
 package com.test.bloctalk.app;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +17,7 @@ public class UsersAdapter extends ArrayAdapter<User> {
 
     private ArrayList<UserWrapper> mUserWrappers;
 
-    private class UserWrapper {
+    public class UserWrapper implements Parcelable {
         private User mUser;
         private boolean mSelected = false;
 
@@ -32,6 +35,16 @@ public class UsersAdapter extends ArrayAdapter<User> {
 
         public User getUser() {
             return mUser;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel parcel, int i) {
+
         }
     }
 
@@ -89,5 +102,13 @@ public class UsersAdapter extends ArrayAdapter<User> {
 
     public UserWrapper getUserWrapper(int i) {
         return mUserWrappers.get(i);
+    }
+
+    public ArrayList<UserWrapper> getUserWrappers() {
+        return mUserWrappers;
+    }
+
+    public void setUserWrappers(ArrayList<UserWrapper> userWrappers) {
+        mUserWrappers = userWrappers;
     }
 }

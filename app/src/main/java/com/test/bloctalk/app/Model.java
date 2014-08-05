@@ -14,8 +14,8 @@ public abstract class Model implements Parcelable {
     private SQLiteDatabase mSQLiteDatabase;
 
     protected long mID = -1;
-    protected static String mTableName = "";
-    protected static String mNullableColumnName = null;
+    protected String mTableName = "";
+    protected String mNullableColumnName = null;
 
 
 
@@ -46,7 +46,13 @@ public abstract class Model implements Parcelable {
     }
 
     public long save() {
-        mSQLiteDatabase.update(mTableName, getContentValues(), String.valueOf(mID) + " = ?", new String[] {String.valueOf(mID)});
+        ContentValues contentValues = getContentValues();
+
+        if(contentValues.size() <= 0) {
+            return mID;
+        }
+
+        mSQLiteDatabase.update(mTableName, getContentValues(), "_id = ?", new String[] {String.valueOf(mID)});
 
         return mID;
     }

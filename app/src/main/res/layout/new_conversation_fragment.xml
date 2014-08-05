@@ -15,6 +15,13 @@
         android:id="@+id/textView"
         android:layout_gravity="center_horizontal" />
 
+    <Button
+        android:id="@+id/btnCreateConversation"
+        android:text="@string/create_conversation"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <ListView
         android:id="@+id/lvNewConversationFragment"
         android:layout_width="match_parent"
