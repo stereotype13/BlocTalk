@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -21,7 +22,6 @@ public class NewConversationFragment extends Fragment {
 
     private static final String POTENTIAL_PARTICIPANTS = "POTENTIAL_PARTICIPANTS";
     private static final String SELECTED_PARTICIPANTS = "SELECTED_PARTICIPANTS";
-    private static final String USER_WRAPPERS = "USER_WRAPPERS";
     private static final String CONVERSATION = "CONVERSATION";
 
     private ArrayList<User> mPotentialParticipants;
@@ -53,14 +53,13 @@ public class NewConversationFragment extends Fragment {
             mConversation = savedInstanceState.getParcelable(CONVERSATION);
             mPotentialParticipants = savedInstanceState.getParcelableArrayList(POTENTIAL_PARTICIPANTS);
             mSelectedParticipants = savedInstanceState.getParcelableArrayList(SELECTED_PARTICIPANTS);
-            mUserWrappers = savedInstanceState.getParcelableArrayList(USER_WRAPPERS);
         }
         else {
             mSelectedParticipants = new ArrayList<User>();
-            mUsersAdapter = new UsersAdapter(getActivity(), mPotentialParticipants);
-            mUserWrappers = mUsersAdapter.getUserWrappers();
         }
 
+        mUsersAdapter = new UsersAdapter(getActivity(), mPotentialParticipants);
+        mUserWrappers = mUsersAdapter.getUserWrappers();
 
     }
 
@@ -68,9 +67,10 @@ public class NewConversationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.new_conversation_fragment, container, false);
-        final ListView listView = (ListView) rootView.findViewById(R.id.lvNewConversationFragment);
 
-        listView.setAdapter(mUsersAdapter);
+        final GridView gridView = (GridView) rootView.findViewById(R.id.gvNewConversation);
+
+        gridView.setAdapter(mUsersAdapter);
 
         Button btnCreateConversation = (Button) rootView.findViewById(R.id.btnCreateConversation);
         btnCreateConversation.setOnClickListener(new View.OnClickListener() {
@@ -90,7 +90,7 @@ public class NewConversationFragment extends Fragment {
             }
         });
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
@@ -124,7 +124,6 @@ public class NewConversationFragment extends Fragment {
         outState.putParcelableArrayList(POTENTIAL_PARTICIPANTS, mPotentialParticipants);
         outState.putParcelableArrayList(SELECTED_PARTICIPANTS, mSelectedParticipants);
         outState.putParcelable(CONVERSATION, mConversation);
-        outState.putParcelableArrayList(USER_WRAPPERS, mUserWrappers);
     }
 
     public interface INewConversationFragmentListener {
