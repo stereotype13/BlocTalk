@@ -4,15 +4,17 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements NewConversationFragment.INewConversationFragmentListener,
@@ -25,6 +27,15 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
     private static final String CONVERSATION_FRAGMENT = "CONVERSATION_FRAGMENT";
     private ConversationFragment mConversationFragment;
 
+    private DrawerLayout mConversationDrawer;
+    private ListView mConversationDrawerListView;
+
+    private static final String CONVERSATIONS = "CONVERSATIONS";
+    private ArrayList<Conversation> mConversations;
+
+    private static final String TITLE = "TITLE";
+    private CharSequence mTitle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,11 +44,19 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
         if(savedInstanceState != null) {
             mNewConversationFragment = (NewConversationFragment)getFragmentManager().findFragmentByTag(NEW_CONVERSATION_FRAGMENT);
             mConversationFragment = (ConversationFragment) getFragmentManager().findFragmentByTag(CONVERSATION_FRAGMENT);
+            mConversations = savedInstanceState.getParcelableArrayList(CONVERSATIONS);
         }
         else {
             mNewConversationFragment = new NewConversationFragment();
             mConversationFragment = new ConversationFragment();
+            mConversations = Conversation.getConversations(BlocTalk.getBlocTalkDBHelper().getReadableDatabase());
+            mTitle = getString(R.string.app_name);
         }
+
+        mConversationDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mConversationDrawerListView = (ListView) findViewById(R.id.lvConversation_drawer);
+        mConversationDrawerListView.setAdapter(new ConversationDrawerAdapter(this, mConversations));
+        mConversationDrawerListView.setOnItemClickListener(new DrawerItemClickListener());
     }
 
 
@@ -92,7 +111,7 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
             String contactID;
             User user;
 
-            while(contactCursor.moveToNext()) {
+            do {
                  user = new User();
 
                 contactID = contactCursor.getString(contactCursor.getColumnIndex(_ID));
@@ -104,7 +123,7 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
                 user.setMobileNumber(phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER)));
 
                 potentialParticipants.add(user);
-            }
+            } while(contactCursor.moveToNext());
 
             contactCursor.close();
 
@@ -129,7 +148,7 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
 
     @Override
     public void onSaveConversation(Conversation conversation, ArrayList<User> selectedParticipants) {
-        long conversationID = conversation.getConversationID();
+        long conversationID = conversation.getID();
 
         for(User user : selectedParticipants) {
             Participant participant = new Participant();
@@ -150,7 +169,7 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
 
     @Override
     public void onSendMessage(Conversation conversation, Message message) {
-        message.setConversationID(conversation.getConversationID());
+        message.setConversationID(conversation.getID());
         message.save();
         conversation.messages.add(message);
 
@@ -167,6 +186,30 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        outState.putParcelableArrayList(CONVERSATIONS, mConversations);
+    }
 
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            selectItem(position);
+        }
+    }
+
+    private void selectItem(int position) {
+        ConversationFragment conversationFragment = new ConversationFragment(mConversations.get(position));
+
+        getFragmentManager().beginTransaction().replace(R.id.content_frame, conversationFragment).addToBackStack(CONVERSATION_FRAGMENT).commit();
+
+        mConversationDrawerListView.setItemChecked(position, true);
+
+        setTitle(String.valueOf(((Conversation)mConversationDrawerListView.getItemAtPosition(position)).getID()));
+        mConversationDrawer.closeDrawer(mConversationDrawerListView);
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        mTitle = title;
+        getActionBar().setTitle(mTitle);
     }
 }

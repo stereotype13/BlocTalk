@@ -61,6 +61,6 @@ public class Participant extends Model {
 
     public void setConversation(Conversation conversation) {
         this.conversation = conversation;
-        mConversationID = conversation.getConversationID();
+        mConversationID = conversation.getID();
     }
 }

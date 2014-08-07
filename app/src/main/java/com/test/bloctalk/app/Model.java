@@ -74,4 +74,12 @@ public abstract class Model implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
 
     }
+
+    public void setID(long id) {
+        mID = id;
+    }
+
+    public long getID() {
+        return mID;
+    }
 }
