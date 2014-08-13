@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class MessagesAdapter extends ArrayAdapter<Message> {
 
     public MessagesAdapter(Context context, ArrayList<Message> messages) {
-        super(context, R.id.message_item);
+        super(context, R.id.message_item, messages);
     }
 
     @Override

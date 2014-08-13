@@ -1,6 +1,7 @@
 package com.test.bloctalk.app;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
@@ -12,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 import java.util.ArrayList;
@@ -36,10 +38,12 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
     private static final String TITLE = "TITLE";
     private CharSequence mTitle;
 
+    private ConversationDrawerAdapter mConversationDrawerAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.drawer_layout);
 
         if(savedInstanceState != null) {
             mNewConversationFragment = (NewConversationFragment)getFragmentManager().findFragmentByTag(NEW_CONVERSATION_FRAGMENT);
@@ -54,8 +58,9 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
         }
 
         mConversationDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mConversationDrawerListView = (ListView) findViewById(R.id.lvConversation_drawer);
-        mConversationDrawerListView.setAdapter(new ConversationDrawerAdapter(this, mConversations));
+        mConversationDrawerListView = (ListView) findViewById(R.id.left_drawer);
+        mConversationDrawerAdapter = new ConversationDrawerAdapter(this, mConversations);
+        mConversationDrawerListView.setAdapter(mConversationDrawerAdapter);
         mConversationDrawerListView.setOnItemClickListener(new DrawerItemClickListener());
     }
 
@@ -116,13 +121,16 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
 
                 contactID = contactCursor.getString(contactCursor.getColumnIndex(_ID));
                 phoneCursor = contentResolver.query(PHONE_CONTENT_URI, new String[]{NUMBER}, CONTACT_ID + " = ? AND " + TYPE + " = ?", new String[]{contactID, String.valueOf(TYPE_MOBILE)}, null);
-                phoneCursor.moveToFirst();
 
+                if(phoneCursor.getCount() > 0) {
+                    phoneCursor.moveToFirst();
 
-                user.setName(contactCursor.getString(contactCursor.getColumnIndex(DISPLAY_NAME_PRIMARY)));
-                user.setMobileNumber(phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER)));
+                    user.setName(contactCursor.getString(contactCursor.getColumnIndex(DISPLAY_NAME_PRIMARY)));
+                    user.setMobileNumber(phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER)));
 
-                potentialParticipants.add(user);
+                    potentialParticipants.add(user);
+                }
+
             } while(contactCursor.moveToNext());
 
             contactCursor.close();
@@ -131,7 +139,7 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
 
         mNewConversationFragment = new NewConversationFragment(conversation, potentialParticipants);
 
-        getFragmentManager().beginTransaction().replace(android.R.id.content, mNewConversationFragment, NEW_CONVERSATION_FRAGMENT).addToBackStack(NEW_CONVERSATION_FRAGMENT).commit();
+        getFragmentManager().beginTransaction().replace(R.id.content_frame, mNewConversationFragment, NEW_CONVERSATION_FRAGMENT).addToBackStack(NEW_CONVERSATION_FRAGMENT).commit();
 
 
     }
@@ -161,16 +169,24 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
 
         conversation.save();
 
+        //Refresh the adapter of our navigation drawer
+        mConversations = Conversation.getConversations(BlocTalk.getBlocTalkDBHelper().getReadableDatabase());
+        mConversationDrawerAdapter.clear();
+        mConversationDrawerAdapter.addAll(mConversations);
+        mConversationDrawerAdapter.notifyDataSetChanged();
+
         mConversationFragment = new ConversationFragment(conversation);
 
-        getFragmentManager().beginTransaction().replace(android.R.id.content, mConversationFragment, CONVERSATION_FRAGMENT).addToBackStack(CONVERSATION_FRAGMENT).commit();
+        getFragmentManager().beginTransaction().replace(R.id.content_frame, mConversationFragment, CONVERSATION_FRAGMENT).addToBackStack(CONVERSATION_FRAGMENT).commit();
 
     }
 
     @Override
     public void onSendMessage(Conversation conversation, Message message) {
-        message.setConversationID(conversation.getID());
+
         message.save();
+
+        //Toast.makeText(this, "Saving message with CONVERSATION_ID: " + String.valueOf(message.getConversationID()) + ", MESSAGE: " + message.getMessage() + "MESSAGE_ID: " + String.valueOf(message.getID()), 1000).show();
         conversation.messages.add(message);
 
         //Send the message to each participant
@@ -178,8 +194,7 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
         for(Participant participant : conversation.participants) {
             message.send(participant);
         }
-        //Refresh the list view of the conversation fragment once we've sent the message
-        mConversationFragment.refresh(message);
+
     }
 
     @Override
@@ -196,8 +211,13 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
         }
     }
 
+    //Gets called when user clicks a conversation in the navigation drawer
     private void selectItem(int position) {
-        ConversationFragment conversationFragment = new ConversationFragment(mConversations.get(position));
+
+        Conversation conversation = new Conversation();
+        conversation = mConversations.get(position);
+        conversation.messages = conversation.getMessages(BlocTalk.getBlocTalkDB(), conversation);
+        ConversationFragment conversationFragment = new ConversationFragment(conversation);
 
         getFragmentManager().beginTransaction().replace(R.id.content_frame, conversationFragment).addToBackStack(CONVERSATION_FRAGMENT).commit();
 
@@ -211,5 +231,14 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
     public void setTitle(CharSequence title) {
         mTitle = title;
         getActionBar().setTitle(mTitle);
+    }
+
+    @Override
+    public void onNoUsersChosen() {
+
+        String alertMessage = getString(R.string.choose_at_least_one_contact);
+        AlertDialog alertDialog = new AlertDialog(alertMessage);
+        alertDialog.show(getSupportFragmentManager(), "ALERT_DIALOG");
+
     }
 }

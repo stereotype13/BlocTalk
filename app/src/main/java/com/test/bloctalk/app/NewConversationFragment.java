@@ -1,6 +1,7 @@
 package com.test.bloctalk.app;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +33,9 @@ public class NewConversationFragment extends Fragment {
     private UsersAdapter mUsersAdapter;
 
     private INewConversationFragmentListener mListener;
+
+    private AlertDialog mAlertDialog;
+    private static final String ALERT_DIALOG = "ALERT_DIALOG";
 
     public NewConversationFragment(Conversation conversation, ArrayList<User> potentialParticipants) {
         mConversation = conversation;
@@ -85,7 +89,14 @@ public class NewConversationFragment extends Fragment {
                     }
                 }
 
-                mListener.onSaveConversation(mConversation, mSelectedParticipants);
+                if(mSelectedParticipants.size() > 0) {
+                    mListener.onSaveConversation(mConversation, mSelectedParticipants);
+                }
+                else {
+                    mListener.onNoUsersChosen();
+                }
+
+
 
             }
         });
@@ -128,6 +139,7 @@ public class NewConversationFragment extends Fragment {
 
     public interface INewConversationFragmentListener {
         public void onSaveConversation(Conversation conversation, ArrayList<User> selectedParticipants);
+        public void onNoUsersChosen();
     }
 
 

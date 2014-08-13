@@ -53,9 +53,34 @@ public class Conversation extends Model {
 
         }
 
-        sqLiteDatabase.close();
         return conversations;
 
+    }
+
+    public ArrayList<Message> getMessages(SQLiteDatabase sqLiteDatabase, Conversation conversation) {
+        ArrayList<Message> messages = new ArrayList<Message>();
+        String whereClause = BlocTalkDBContract.Message.CONVERSATION_ID + " = " + String.valueOf(conversation.getID());
+        //Cursor cursor = sqLiteDatabase.query(BlocTalkDBContract.Message.TABLE_NAME, null, "CONVERSATION_ID = ?", new String[]{String.valueOf(conversation.getID())}, null, null, null );
+        Cursor cursor = sqLiteDatabase.query(BlocTalkDBContract.Message.TABLE_NAME, null, whereClause, null, null, null, null );
+
+        if(cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                Message message = new Message();
+                message.setConversation(conversation);
+                message.setID(cursor.getLong(cursor.getColumnIndex("_ID")));
+                Long userID = cursor.getLong(cursor.getColumnIndex(BlocTalkDBContract.Message.USER_ID));
+                if(userID > 0) {
+                    message.setUserID(userID);
+                }
+
+                message.setMessage(cursor.getString(cursor.getColumnIndex(BlocTalkDBContract.Message.MESSAGE)));
+
+                messages.add(message);
+            } while(cursor.moveToNext());
+        }
+
+        return messages;
     }
 
 

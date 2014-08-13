@@ -15,13 +15,18 @@ import java.util.ArrayList;
  */
 public class ConversationDrawerAdapter extends ArrayAdapter<Conversation> {
 
+    //private ArrayList<Conversation> mConversations;
+
     public ConversationDrawerAdapter(Context context, ArrayList<Conversation> conversations) {
-        super(context, R.layout.conversation_drawer_item);
+        super(context, R.layout.conversation_drawer_item, conversations);
+
+        //mConversations = conversations;
 
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
 
         View cView = convertView;
         if (cView == null) {
@@ -40,4 +45,6 @@ public class ConversationDrawerAdapter extends ArrayAdapter<Conversation> {
         // All done
         return cView;
     }
+
+
 }

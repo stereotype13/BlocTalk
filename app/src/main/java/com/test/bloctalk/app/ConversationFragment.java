@@ -75,7 +75,9 @@ public class ConversationFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Message message = new Message();
+                message.create();
                 message.setMessage(mEditText.getText().toString());
+                message.setConversation(mConversation);
                 mListener.onSendMessage(mConversation, message);
                 mEditText.setText("");
             }
@@ -98,8 +100,8 @@ public class ConversationFragment extends Fragment {
     }
 
     public void refresh(Message message){
-        mMessagesAdapter.add(message);
-        mMessagesAdapter.notifyDataSetChanged();
+       // mMessagesAdapter.add(message);
+        //mMessagesAdapter.notifyDataSetChanged();
     }
 
     @Override

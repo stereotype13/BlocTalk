@@ -6,5 +6,6 @@
     <string name="action_settings">Settings</string>
     <string name="new_conversation">Start a New Conversation</string>
     <string name="create_conversation">Create Conversation</string>
+    <string name="choose_at_least_one_contact">Please select at least one contact to create a new conversation.</string>
 
 </resources>
