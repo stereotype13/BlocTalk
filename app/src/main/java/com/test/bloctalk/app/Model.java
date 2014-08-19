@@ -52,7 +52,7 @@ public abstract class Model implements Parcelable {
             return mID;
         }
 
-        mSQLiteDatabase.update(mTableName, getContentValues(), "_id = ?", new String[] {String.valueOf(mID)});
+        mSQLiteDatabase.update(mTableName, contentValues, "_id = ?", new String[] {String.valueOf(mID)});
 
         return mID;
     }

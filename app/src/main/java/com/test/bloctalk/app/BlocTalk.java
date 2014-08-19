@@ -20,7 +20,8 @@ public class BlocTalk extends Application {
 
         //Get the database in a different thread, since it may take a while.
         GetWritableDatabaseTask writableDatabaseTask = new GetWritableDatabaseTask();
-        writableDatabaseTask.execute();
+        mBlocTalkDB = BlocTalk.getBlocTalkDBHelper().getWritableDatabase();
+        //writableDatabaseTask.execute();
     }
 
     public static BlocTalkDBHelper getBlocTalkDBHelper() {

@@ -1,7 +1,9 @@
 package com.test.bloctalk.app;
 
+import android.app.FragmentManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
@@ -20,7 +22,7 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity implements NewConversationFragment.INewConversationFragmentListener,
-    ConversationFragment.IConversationFragmentListener
+    ConversationFragment.IConversationFragmentListener, SMSReceiver.ISMSReceiverListener
 {
 
     private static final String NEW_CONVERSATION_FRAGMENT = "NEW_CONVERSATION_FRAGMENT";
@@ -39,6 +41,7 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
     private CharSequence mTitle;
 
     private ConversationDrawerAdapter mConversationDrawerAdapter;
+    private SMSReceiver mSMSReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +56,7 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
         else {
             mNewConversationFragment = new NewConversationFragment();
             mConversationFragment = new ConversationFragment();
-            mConversations = Conversation.getConversations(BlocTalk.getBlocTalkDBHelper().getReadableDatabase());
+            mConversations = Conversation.getConversations(BlocTalk.getBlocTalkDB());
             mTitle = getString(R.string.app_name);
         }
 
@@ -62,6 +65,12 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
         mConversationDrawerAdapter = new ConversationDrawerAdapter(this, mConversations);
         mConversationDrawerListView.setAdapter(mConversationDrawerAdapter);
         mConversationDrawerListView.setOnItemClickListener(new DrawerItemClickListener());
+
+        mSMSReceiver = new SMSReceiver();
+        mSMSReceiver.setListener(this);
+
+        IntentFilter smsIntentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+        registerReceiver(mSMSReceiver, smsIntentFilter);
     }
 
 
@@ -99,7 +108,7 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
 
         Uri PHONE_CONTENT_URI = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
         String CONTACT_ID =  ContactsContract.CommonDataKinds.Phone.CONTACT_ID;
-        String NUMBER = ContactsContract.CommonDataKinds.Phone.NUMBER;
+        String NUMBER = ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER;
         String TYPE = ContactsContract.CommonDataKinds.Phone.TYPE;
         int TYPE_MOBILE = ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE;
 
@@ -163,6 +172,7 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
             participant.create();
             participant.setConversationID(conversationID);
             participant.setUser(user);
+            participant.setNumber(user.getMobileNumber());
             conversation.participants.add(participant);
             participant.save();
         }
@@ -216,10 +226,17 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
 
         Conversation conversation = new Conversation();
         conversation = mConversations.get(position);
-        conversation.messages = conversation.getMessages(BlocTalk.getBlocTalkDB(), conversation);
+        conversation.messages = Conversation.getMessages(conversation);
+        conversation.participants = Conversation.getParticipants(conversation);
+
+        FragmentManager fragmentManager = getFragmentManager();
+        if(fragmentManager.getBackStackEntryCount() > 0) {
+            fragmentManager.popBackStack();
+        }
+
         ConversationFragment conversationFragment = new ConversationFragment(conversation);
 
-        getFragmentManager().beginTransaction().replace(R.id.content_frame, conversationFragment).addToBackStack(CONVERSATION_FRAGMENT).commit();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, conversationFragment, CONVERSATION_FRAGMENT).addToBackStack(CONVERSATION_FRAGMENT).commit();
 
         mConversationDrawerListView.setItemChecked(position, true);
 
@@ -240,5 +257,14 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
         AlertDialog alertDialog = new AlertDialog(alertMessage);
         alertDialog.show(getSupportFragmentManager(), "ALERT_DIALOG");
 
+    }
+
+    @Override
+    public void onMessageReceived(Conversation conversation, Message message) {
+        ConversationFragment conversationFragment = (ConversationFragment)getFragmentManager().findFragmentByTag(CONVERSATION_FRAGMENT);
+
+        if(conversationFragment != null) {
+            conversationFragment.refresh(conversation);
+        }
     }
 }

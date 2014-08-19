@@ -48,11 +48,8 @@ public class ConversationFragment extends Fragment {
         }
         else {
             mMessages = new ArrayList<Message>();
+            mMessages = mConversation.messages;
         }
-
-
-        mMessages = mConversation.messages;
-
 
         mMessagesAdapter = new MessagesAdapter(getActivity(), mMessages);
 
@@ -91,8 +88,8 @@ public class ConversationFragment extends Fragment {
     }
 
     public void refresh(Conversation conversation){
-        mConversation = conversation;
-        mMessages = mConversation.messages;
+        mConversation = Conversation.getConversationByID(conversation.getID());
+        mMessages = Conversation.getMessages(mConversation);
         mMessagesAdapter.clear();
         mMessagesAdapter.addAll(mMessages);
         mMessagesAdapter.notifyDataSetChanged();

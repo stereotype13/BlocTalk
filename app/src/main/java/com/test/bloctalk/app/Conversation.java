@@ -18,6 +18,8 @@ public class Conversation extends Model {
     public ArrayList<Message> messages;
     public ArrayList<Participant> participants;
 
+    private long mTimeStamp;
+
     public Conversation() {
         super();
         setContract();
@@ -35,7 +37,16 @@ public class Conversation extends Model {
     @Override
     public ContentValues getContentValues() {
         ContentValues contentValues = new ContentValues();
+        contentValues.put(BlocTalkDBContract.Conversation.TIME_STAMP, System.currentTimeMillis()/1000);
         return contentValues;
+    }
+
+    public long getTimeStamp() {
+        return mTimeStamp;
+    }
+
+    public void setTimeStamp(long timeStamp) {
+        mTimeStamp = timeStamp;
     }
 
     public static ArrayList<Conversation> getConversations(SQLiteDatabase sqLiteDatabase) {
@@ -57,10 +68,11 @@ public class Conversation extends Model {
 
     }
 
-    public ArrayList<Message> getMessages(SQLiteDatabase sqLiteDatabase, Conversation conversation) {
+    public static ArrayList<Message> getMessages(Conversation conversation) {
         ArrayList<Message> messages = new ArrayList<Message>();
         String whereClause = BlocTalkDBContract.Message.CONVERSATION_ID + " = " + String.valueOf(conversation.getID());
         //Cursor cursor = sqLiteDatabase.query(BlocTalkDBContract.Message.TABLE_NAME, null, "CONVERSATION_ID = ?", new String[]{String.valueOf(conversation.getID())}, null, null, null );
+        SQLiteDatabase sqLiteDatabase = BlocTalk.getBlocTalkDB();
         Cursor cursor = sqLiteDatabase.query(BlocTalkDBContract.Message.TABLE_NAME, null, whereClause, null, null, null, null );
 
         if(cursor.getCount() > 0) {
@@ -83,5 +95,44 @@ public class Conversation extends Model {
         return messages;
     }
 
+    public static ArrayList<Participant> getParticipants(Conversation conversation) {
+        ArrayList<Participant> participantArrayList = new ArrayList<Participant>();
+        String whereClause = BlocTalkDBContract.Participant.CONVERSATION_ID + " = " + String.valueOf(conversation.getID());
+        SQLiteDatabase sqLiteDatabase = BlocTalk.getBlocTalkDB();
+        Cursor cursor = sqLiteDatabase.query(BlocTalkDBContract.Participant.TABLE_NAME, new String[]{BlocTalkDBContract.Participant._ID, BlocTalkDBContract.Participant.NUMBER, BlocTalkDBContract.Participant.CONVERSATION_ID, BlocTalkDBContract.Participant.USER_ID}, whereClause, null, null, null, null);
 
+        if(cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                Participant participant = new Participant();
+                participant.setID(cursor.getLong(cursor.getColumnIndex("_ID")));
+                participant.setNumber(cursor.getString(cursor.getColumnIndex(BlocTalkDBContract.Participant.NUMBER)));
+                participant.setUserID(cursor.getLong(cursor.getColumnIndex(BlocTalkDBContract.Participant.USER_ID)));
+                participant.setConversationID(cursor.getLong(cursor.getColumnIndex(BlocTalkDBContract.Participant.CONVERSATION_ID)));
+                participantArrayList.add(participant);
+
+            } while(cursor.moveToNext());
+        }
+
+        return participantArrayList;
+    }
+
+    public static Conversation getConversationByID(long ID) {
+        SQLiteDatabase sqLiteDatabase = BlocTalk.getBlocTalkDB();
+        Conversation conversation = new Conversation();
+        String tableName = BlocTalkDBContract.Conversation.TABLE_NAME;
+        String id = "_ID";
+        String[] projection = {id};
+        Cursor conversationCursor = sqLiteDatabase.query(tableName, projection, id + " = " + String.valueOf(ID), null, null, null, null, "1");
+
+        if(conversationCursor.getCount() > 0) {
+            conversationCursor.moveToFirst();
+            conversation.setID(conversationCursor.getLong(conversationCursor.getColumnIndex("_ID")));
+        }
+        else {
+            conversation = null;
+        }
+
+        return conversation;
+    }
 }

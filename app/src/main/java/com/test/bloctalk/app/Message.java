@@ -12,6 +12,7 @@ public class Message extends Model {
     private String mMessage = null;
     private long mConversationID;
     private SmsManager mSmsManager;
+    private long mTimeStamp;
 
     public Conversation conversation;
     public User user;
@@ -36,6 +37,7 @@ public class Message extends Model {
         contentValues.put(BlocTalkDBContract.Message.USER_ID, mUserID);
         contentValues.put(BlocTalkDBContract.Message.MESSAGE, mMessage);
         contentValues.put(BlocTalkDBContract.Message.CONVERSATION_ID, mConversationID);
+        contentValues.put(BlocTalkDBContract.Message.TIME_STAMP, System.currentTimeMillis()/1000);
 
         return contentValues;
     }
@@ -45,15 +47,23 @@ public class Message extends Model {
         mUserID = user.getUserID();
     }
 
+    public long getTimeStamp() {
+        return mTimeStamp;
+    }
+
+    public void setTimeStamp(long timeStamp) {
+        mTimeStamp = timeStamp;
+    }
+
     public void setConversation(Conversation conversation) {
         this.conversation = conversation;
         mConversationID = conversation.getID();
     }
 
     public void send(Participant participant) {
-        User user = participant.user;
 
-        mSmsManager.sendTextMessage(user.getMobileNumber(), null, mMessage, null, null);
+
+        mSmsManager.sendTextMessage(participant.getNumber(), null, mMessage, null, null);
     }
 
     public long getMessageID() {

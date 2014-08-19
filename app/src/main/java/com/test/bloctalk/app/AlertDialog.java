@@ -35,7 +35,7 @@ public class AlertDialog extends DialogFragment {
         if(savedInstanceState != null) {
             mAlertMessage = savedInstanceState.getString(ALERT_MESSAGE);
         }
-      
+
     }
 
     @Override

@@ -20,10 +20,12 @@ public class BlocTalkDBContract {
     public static class Conversation implements BaseColumns {
         public static final String TABLE_NAME = "Conversations";
         public static final String COLUMN_NAME_NULLABLE = "NULLABLE_COLUMN";
+        public static final String TIME_STAMP = "TIME_STAMP";
 
         public static final String SQL_CREATE_CONVERSATIONS = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 "_ID INTEGER PRIMARY KEY" + COMMA_SEP +
+                TIME_STAMP + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_NULLABLE + INTEGER_TYPE +
                 ")";
 
@@ -36,6 +38,8 @@ public class BlocTalkDBContract {
         public static final String TABLE_NAME = "Participants";
         public static final String USER_ID = "USER_ID";
         public static final String CONVERSATION_ID = "CONVERSATION_ID";
+        public static final String NUMBER = "NUMBER";
+        public static final String TIME_STAMP = "TIME_STAMP";
         public static final String COLUMN_NAME_NULLABLE = "NULLABLE_COLUMN";
 
         public static final String SQL_CREATE_PARTICIPANTS =
@@ -44,6 +48,8 @@ public class BlocTalkDBContract {
                 "_ID INTEGER PRIMARY KEY" + COMMA_SEP +
                 USER_ID + INTEGER_TYPE + COMMA_SEP +
                 CONVERSATION_ID + INTEGER_TYPE  + COMMA_SEP +
+                NUMBER + TEXT_TYPE + COMMA_SEP +
+                TIME_STAMP + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_NULLABLE + INTEGER_TYPE +
                 ")";
 
@@ -56,6 +62,7 @@ public class BlocTalkDBContract {
         public static final String USER_ID = "USER_ID";
         public static final String CONVERSATION_ID = "CONVERSATION_ID";
         public static final String MESSAGE = "MESSAGE";
+        public static final String TIME_STAMP = "TIME_STAMP";
         public static final String COLUMN_NAME_NULLABLE = "NULLABLE_COLUMN";
 
         public static final String SQL_CREATE_MESSAGES =
@@ -65,6 +72,7 @@ public class BlocTalkDBContract {
                 USER_ID + TEXT_TYPE + COMMA_SEP +
                 CONVERSATION_ID + COMMA_SEP +
                 MESSAGE + TEXT_TYPE + COMMA_SEP +
+                TIME_STAMP + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_NULLABLE + INTEGER_TYPE +
                 ")";
 
@@ -78,6 +86,7 @@ public class BlocTalkDBContract {
         public static final String NAME = "NAME";
         public static final String MOBILE_NUMBER = "MOBILE_NUMBER";
         public static final String COLUMN_NAME_NULLABLE = "NULLABLE_COLUMN";
+        public static final String NUMBER = "NUMBER";
 
         public static final String SQL_CREATE_USERS =
                 "CREATE TABLE " +
@@ -85,6 +94,7 @@ public class BlocTalkDBContract {
                         "_ID INTEGER PRIMARY KEY" + COMMA_SEP +
                         NAME + TEXT_TYPE + COMMA_SEP +
                         MOBILE_NUMBER + TEXT_TYPE + COMMA_SEP +
+                        NUMBER + TEXT_TYPE + COMMA_SEP +
                         COLUMN_NAME_NULLABLE + INTEGER_TYPE +
                         ")";
 
