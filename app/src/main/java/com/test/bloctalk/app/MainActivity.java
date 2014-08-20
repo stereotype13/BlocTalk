@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.v4.widget.DrawerLayout;
@@ -187,6 +188,8 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
 
         mConversationFragment = new ConversationFragment(conversation);
 
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.popBackStack();
         getFragmentManager().beginTransaction().replace(R.id.content_frame, mConversationFragment, CONVERSATION_FRAGMENT).addToBackStack(CONVERSATION_FRAGMENT).commit();
 
     }
@@ -266,5 +269,27 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
         if(conversationFragment != null) {
             conversationFragment.refresh(conversation);
         }
+    }
+
+    public void onTest(View view) {
+        SQLiteDatabase sqLiteDatabase = BlocTalk.getBlocTalkDB();
+        String participantTable = BlocTalkDBContract.Participant.TABLE_NAME;
+        String _ID = BlocTalkDBContract.Participant._ID;
+        String NUMBER = BlocTalkDBContract.Participant.NUMBER;
+        String TIME_STAMP = BlocTalkDBContract.Participant.TIME_STAMP;
+        String CONVERSATION_ID = BlocTalkDBContract.Participant.CONVERSATION_ID;
+        String[] projection = {_ID, NUMBER, TIME_STAMP, CONVERSATION_ID};
+        Cursor cursor = sqLiteDatabase.query(participantTable, projection, NUMBER + " = '+19513337993'", null, null, null, "_ID DESC", "1");
+        if(cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                String id = String.valueOf(cursor.getLong(cursor.getColumnIndex("_ID")));
+                String number = cursor.getString(cursor.getColumnIndex(NUMBER));
+                String timeStamp = String.valueOf(cursor.getLong(cursor.getColumnIndex(TIME_STAMP)));
+                String conversationID = String.valueOf(cursor.getLong(cursor.getColumnIndex(CONVERSATION_ID)));
+                Toast.makeText(this, "_ID: " + id + ", NUMBER: " + number + ", CONVERSATION_ID: " + conversationID, 1000).show();
+            } while (cursor.moveToNext());
+        }
+
     }
 }

@@ -25,4 +25,6 @@
         android:onClick="onStartANewConversation"
         />
 
+
+
 </LinearLayout>

@@ -16,6 +16,7 @@ public class Message extends Model {
 
     public Conversation conversation;
     public User user;
+    public Participant participant;
 
 
     public Message(){
@@ -62,8 +63,10 @@ public class Message extends Model {
 
     public void send(Participant participant) {
 
+        if(!mMessage.isEmpty()) {
+            mSmsManager.sendTextMessage(participant.getNumber(), null, mMessage, null, null);
+        }
 
-        mSmsManager.sendTextMessage(participant.getNumber(), null, mMessage, null, null);
     }
 
     public long getMessageID() {

@@ -3,6 +3,7 @@ package com.test.bloctalk.app;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.widget.Toast;
 
 /**
  * Created by stereotype13 on 8/3/14.
@@ -98,13 +99,20 @@ public class Participant extends Model {
             participantCursor.moveToFirst();
 
             participant.setID(participantCursor.getLong(participantCursor.getColumnIndex("_ID")));
-            participant.setConversationID(participantCursor.getColumnIndex(BlocTalkDBContract.Participant.CONVERSATION_ID));
+            participant.setConversationID(participantCursor.getLong(participantCursor.getColumnIndex(BlocTalkDBContract.Participant.CONVERSATION_ID)));
             participant.setNumber(participantCursor.getString(participantCursor.getColumnIndex(BlocTalkDBContract.Participant.NUMBER)));
             participant.setTimeStamp(participantCursor.getLong(participantCursor.getColumnIndex(BlocTalkDBContract.Participant.TIME_STAMP)));
 
             if(Long.valueOf(participant.getConversationID()) != null) {
                 participant.conversation = Conversation.getConversationByID(participant.getConversationID());
             }
+
+            ///////////////////
+            String id = String.valueOf(participantCursor.getLong(participantCursor.getColumnIndex("_ID")));
+            number = participantCursor.getString(participantCursor.getColumnIndex(BlocTalkDBContract.Participant.NUMBER));
+            String timeStamp = String.valueOf(participantCursor.getLong(participantCursor.getColumnIndex(BlocTalkDBContract.Participant.TIME_STAMP)));
+            String conversationID = String.valueOf(participantCursor.getLong(participantCursor.getColumnIndex(BlocTalkDBContract.Participant.CONVERSATION_ID)));
+            Toast.makeText(BlocTalk.getContext(), "_ID: " + id + ", NUMBER: " + number + ", CONVERSATION_ID: " + conversationID + ", participant.conversation: " + String.valueOf(participant.conversation.getID()), 3000).show();
 
         }
         else {

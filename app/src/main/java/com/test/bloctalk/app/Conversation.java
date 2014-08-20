@@ -99,7 +99,7 @@ public class Conversation extends Model {
         ArrayList<Participant> participantArrayList = new ArrayList<Participant>();
         String whereClause = BlocTalkDBContract.Participant.CONVERSATION_ID + " = " + String.valueOf(conversation.getID());
         SQLiteDatabase sqLiteDatabase = BlocTalk.getBlocTalkDB();
-        Cursor cursor = sqLiteDatabase.query(BlocTalkDBContract.Participant.TABLE_NAME, new String[]{BlocTalkDBContract.Participant._ID, BlocTalkDBContract.Participant.NUMBER, BlocTalkDBContract.Participant.CONVERSATION_ID, BlocTalkDBContract.Participant.USER_ID}, whereClause, null, null, null, null);
+        Cursor cursor = sqLiteDatabase.query(BlocTalkDBContract.Participant.TABLE_NAME, new String[]{"_ID", BlocTalkDBContract.Participant.NUMBER, BlocTalkDBContract.Participant.CONVERSATION_ID, BlocTalkDBContract.Participant.USER_ID}, whereClause, null, null, null, null);
 
         if(cursor.getCount() > 0) {
             cursor.moveToFirst();

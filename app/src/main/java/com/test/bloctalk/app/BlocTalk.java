@@ -1,6 +1,7 @@
 package com.test.bloctalk.app;
 
 import android.app.Application;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 
@@ -11,6 +12,7 @@ public class BlocTalk extends Application {
 
     private static BlocTalkDBHelper mBlocTalkDBHelper;
     private static SQLiteDatabase mBlocTalkDB;
+    private static Context mContext;
 
     @Override
     public void onCreate() {
@@ -22,6 +24,12 @@ public class BlocTalk extends Application {
         GetWritableDatabaseTask writableDatabaseTask = new GetWritableDatabaseTask();
         mBlocTalkDB = BlocTalk.getBlocTalkDBHelper().getWritableDatabase();
         //writableDatabaseTask.execute();
+
+        mContext = getApplicationContext();
+    }
+
+    public static Context getContext() {
+        return mContext;
     }
 
     public static BlocTalkDBHelper getBlocTalkDBHelper() {
