@@ -14,6 +14,7 @@ public class Participant extends Model {
     private long mConversationID;
     private String mNumber;
     private long mTimeStamp;
+    private String mDisplayName;
 
     public Conversation conversation;
     public User user;
@@ -36,9 +37,18 @@ public class Participant extends Model {
         contentValues.put(BlocTalkDBContract.Participant.USER_ID, mUserID);
         contentValues.put(BlocTalkDBContract.Participant.CONVERSATION_ID, mConversationID);
         contentValues.put(BlocTalkDBContract.Participant.NUMBER, mNumber);
+        contentValues.put(BlocTalkDBContract.Participant.DISPLAY_NAME, mDisplayName);
         contentValues.put(BlocTalkDBContract.Participant.TIME_STAMP, System.currentTimeMillis()/1000);
 
         return contentValues;
+    }
+
+    public void setDisplayName(String displayName) {
+        mDisplayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return mDisplayName;
     }
 
     public long getParticipantID() {
@@ -92,7 +102,7 @@ public class Participant extends Model {
         //Must take the NORMALIZED number
         Participant participant = new Participant();
         SQLiteDatabase sqLiteDatabase = BlocTalk.getBlocTalkDB();
-        String[] projection = {"_ID", BlocTalkDBContract.Participant.USER_ID, BlocTalkDBContract.Participant.CONVERSATION_ID, BlocTalkDBContract.Participant.NUMBER, BlocTalkDBContract.Participant.TIME_STAMP};
+        String[] projection = {"_ID", BlocTalkDBContract.Participant.USER_ID, BlocTalkDBContract.Participant.DISPLAY_NAME, BlocTalkDBContract.Participant.CONVERSATION_ID, BlocTalkDBContract.Participant.NUMBER, BlocTalkDBContract.Participant.TIME_STAMP};
         Cursor participantCursor = sqLiteDatabase.query(BlocTalkDBContract.Participant.TABLE_NAME, projection, "NUMBER = '" + number + "'", null, null, null, "_ID DESC", "1");
 
         if(participantCursor.getCount() > 0) {
@@ -102,6 +112,7 @@ public class Participant extends Model {
             participant.setConversationID(participantCursor.getLong(participantCursor.getColumnIndex(BlocTalkDBContract.Participant.CONVERSATION_ID)));
             participant.setNumber(participantCursor.getString(participantCursor.getColumnIndex(BlocTalkDBContract.Participant.NUMBER)));
             participant.setTimeStamp(participantCursor.getLong(participantCursor.getColumnIndex(BlocTalkDBContract.Participant.TIME_STAMP)));
+            participant.setDisplayName(participantCursor.getString(participantCursor.getColumnIndex(BlocTalkDBContract.Participant.DISPLAY_NAME)));
 
             if(Long.valueOf(participant.getConversationID()) != null) {
                 participant.conversation = Conversation.getConversationByID(participant.getConversationID());

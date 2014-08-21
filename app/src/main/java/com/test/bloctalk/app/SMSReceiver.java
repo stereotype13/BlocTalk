@@ -63,12 +63,14 @@ public class SMSReceiver extends BroadcastReceiver {
                     Participant participant = Participant.getParticipantByNumber(senderNum);
 
                     if(participant != null) {
+                        message = participant.getDisplayName() + ": " + message;
                         participant.conversation = Conversation.getConversationByID(participant.getConversationID());
                         Message smsMessage = new Message();
                         smsMessage.create();
 
                         smsMessage.setConversation(participant.conversation);
                         smsMessage.setMessage(message);
+                        smsMessage.setUserID(participant.getID());
                         smsMessage.save();
 
                         if(mListener != null) {

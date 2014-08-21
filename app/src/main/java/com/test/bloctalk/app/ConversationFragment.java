@@ -72,6 +72,7 @@ public class ConversationFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String messageText = mEditText.getText().toString();
+
                 if(messageText.isEmpty()) {
                     return;
                 }

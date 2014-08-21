@@ -39,7 +39,7 @@ public class ConversationDrawerAdapter extends ArrayAdapter<Conversation> {
 
         // Setup Text
         TextView textView = (TextView) cView.findViewById(R.id.tvConversationDrawerItem);
-        textView.setText(String.valueOf(conversation.getID()));
+        textView.setText(String.valueOf(conversation.getID()) + " " + conversation.getTitle());
 
 
         // All done

@@ -24,14 +24,6 @@
             android:onClick="onStartANewConversation"
             />
 
-        <Button
-
-            android:layout_gravity="bottom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Get Latest Participant/Conversation"
-            android:onClick="onTest"/>
-
         </FrameLayout>
     <!-- The navigation drawer -->
     <ListView android:id="@+id/left_drawer"

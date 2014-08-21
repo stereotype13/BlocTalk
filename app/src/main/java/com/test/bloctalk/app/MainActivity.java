@@ -168,15 +168,20 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
     public void onSaveConversation(Conversation conversation, ArrayList<User> selectedParticipants) {
         long conversationID = conversation.getID();
 
+        String title = "";
         for(User user : selectedParticipants) {
             Participant participant = new Participant();
             participant.create();
             participant.setConversationID(conversationID);
             participant.setUser(user);
+            participant.setDisplayName(user.getName());
             participant.setNumber(user.getMobileNumber());
             conversation.participants.add(participant);
+            title = title + participant.getDisplayName() + " ";
             participant.save();
         }
+
+        conversation.setTitle(title);
 
         conversation.save();
 
@@ -203,6 +208,7 @@ public class MainActivity extends ActionBarActivity implements NewConversationFr
         conversation.messages.add(message);
 
         //Send the message to each participant
+        conversation.participants = Conversation.getParticipants(conversation);
 
         for(Participant participant : conversation.participants) {
             message.send(participant);

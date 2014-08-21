@@ -19,6 +19,7 @@ public class Conversation extends Model {
     public ArrayList<Participant> participants;
 
     private long mTimeStamp;
+    private String mTitle;
 
     public Conversation() {
         super();
@@ -38,6 +39,7 @@ public class Conversation extends Model {
     public ContentValues getContentValues() {
         ContentValues contentValues = new ContentValues();
         contentValues.put(BlocTalkDBContract.Conversation.TIME_STAMP, System.currentTimeMillis()/1000);
+        contentValues.put(BlocTalkDBContract.Conversation.TITLE, mTitle);
         return contentValues;
     }
 
@@ -47,6 +49,14 @@ public class Conversation extends Model {
 
     public void setTimeStamp(long timeStamp) {
         mTimeStamp = timeStamp;
+    }
+
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public void setTitle(String title) {
+        mTitle = title;
     }
 
     public static ArrayList<Conversation> getConversations(SQLiteDatabase sqLiteDatabase) {
@@ -59,6 +69,7 @@ public class Conversation extends Model {
             do {
                 Conversation conversation = new Conversation();
                 conversation.setID(cursor.getLong(cursor.getColumnIndex("_ID")));
+                conversation.setTitle(cursor.getString(cursor.getColumnIndex(BlocTalkDBContract.Conversation.TITLE)));
                 conversations.add(conversation);
             } while(cursor.moveToNext());
 
@@ -122,12 +133,14 @@ public class Conversation extends Model {
         Conversation conversation = new Conversation();
         String tableName = BlocTalkDBContract.Conversation.TABLE_NAME;
         String id = "_ID";
-        String[] projection = {id};
+        String TITLE = BlocTalkDBContract.Conversation.TITLE;
+        String[] projection = {id, TITLE};
         Cursor conversationCursor = sqLiteDatabase.query(tableName, projection, id + " = " + String.valueOf(ID), null, null, null, null, "1");
 
         if(conversationCursor.getCount() > 0) {
             conversationCursor.moveToFirst();
             conversation.setID(conversationCursor.getLong(conversationCursor.getColumnIndex("_ID")));
+            conversation.setTitle(conversationCursor.getString(conversationCursor.getColumnIndex(TITLE)));
         }
         else {
             conversation = null;

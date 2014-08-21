@@ -32,7 +32,11 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
 
         // Setup Text
         TextView tvMessageItem = (TextView) cView.findViewById(R.id.tvMessageItem);
-        tvMessageItem.setText(message.getMessage());
+        String messageText = message.getMessage();
+        if(message.getUserID() < 0) {
+            messageText = "You: " + messageText;
+        }
+        tvMessageItem.setText(messageText);
 
         // All done
         return cView;

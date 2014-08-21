@@ -21,10 +21,12 @@ public class BlocTalkDBContract {
         public static final String TABLE_NAME = "Conversations";
         public static final String COLUMN_NAME_NULLABLE = "NULLABLE_COLUMN";
         public static final String TIME_STAMP = "TIME_STAMP";
+        public static final String TITLE = "TITLE";
 
         public static final String SQL_CREATE_CONVERSATIONS = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 "_ID INTEGER PRIMARY KEY" + COMMA_SEP +
+                TITLE + TEXT_TYPE + COMMA_SEP +
                 TIME_STAMP + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_NULLABLE + INTEGER_TYPE +
                 ")";
@@ -41,6 +43,7 @@ public class BlocTalkDBContract {
         public static final String NUMBER = "NUMBER";
         public static final String TIME_STAMP = "TIME_STAMP";
         public static final String COLUMN_NAME_NULLABLE = "NULLABLE_COLUMN";
+        public static final String DISPLAY_NAME = "DISPLAY_NAME";
 
         public static final String SQL_CREATE_PARTICIPANTS =
                 "CREATE TABLE " +
@@ -50,6 +53,7 @@ public class BlocTalkDBContract {
                 CONVERSATION_ID + INTEGER_TYPE  + COMMA_SEP +
                 NUMBER + TEXT_TYPE + COMMA_SEP +
                 TIME_STAMP + INTEGER_TYPE + COMMA_SEP +
+                DISPLAY_NAME + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_NULLABLE + INTEGER_TYPE +
                 ")";
 
@@ -87,6 +91,7 @@ public class BlocTalkDBContract {
         public static final String MOBILE_NUMBER = "MOBILE_NUMBER";
         public static final String COLUMN_NAME_NULLABLE = "NULLABLE_COLUMN";
         public static final String NUMBER = "NUMBER";
+
 
         public static final String SQL_CREATE_USERS =
                 "CREATE TABLE " +
